@@ -1,0 +1,185 @@
+<?php
+/**
+ * Copyright (c) 2021. Udeytech Technologies All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Udeytech\FacebookPixel\Block\Code;
+
+/**
+ * Facebook Pixel Code block
+ * @var $block Code
+ */
+
+$data = $block->getFacebookPixelData();
+$id = $data['id'];
+$action = $data['full_action_name'];
+
+?>
+<!-- Facebook Pixel Code -->
+<script>
+    !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+            n.callMethod ?
+                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = '2.0';
+        n.agent = 'dvudeytech';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s)
+    }(window,
+        document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+    <?php
+    $customerData = $block->getCustomerData();
+    if (empty($customerData)): ?>
+    fbq('init', '<?php echo $block->escapeHtml($id) ?>');
+    <?php else: ?>
+    fbq('init', '<?php echo $block->escapeHtml($id) ?>', {
+        <?php
+        $i = 1;
+        $itemCount = count($customerData);
+        foreach($customerData as $param => $value): ?>
+        <?php /* @noEscape */ echo $param . ": '" . $value . "'";
+        if ($i == $itemCount) {
+            /* @noEscape */
+            echo "\n";
+        } else {
+            /* @noEscape */
+            echo ",\n";
+        }
+
+        $i++;
+        ?>
+        <?php endforeach; ?>
+    });
+    <?php endif; ?>
+
+    fbq('track', 'PageView');
+
+</script>
+<noscript><img height="1" width="1" style="display:none" alt="Facebook Pixel"
+               src="https://www.facebook.com/tr?id=<?php
+               echo $block->escapeHtml($id) ?>&ev=PageView&noscript=1"
+    /></noscript>
+
+<script>
+    require([
+        'jquery'
+    ], function ($) {
+        $(function () {
+
+            <?php if ($action == 'catalog_product_view') : ?>
+            <?php
+            $productData = $block->getProductData();
+            if ($productData !== null) : ?>
+            fbq('track', 'ViewContent', {
+                <?php
+                $productString = '';
+
+                foreach ($productData as $param => $value) {
+                    switch ($param) {
+                        case 'content_ids':
+                            $productString .= $param . ": ['" . $value . "'],\n";
+                            break;
+                        case 'value':
+                            $productString .= $param . ": " . $value . "\n";
+                            break;
+                        default:
+                            $productString .= $param . ": '" . $value . "',\n";
+                    }
+                }
+
+                /* @noEscape */ echo $productString;
+
+                ?>
+            });
+//Add Pixel Events to the button's click handler
+            $('#product-addtocart-button').click(function () {
+                fbq('track', 'AddToCart', {
+                    <?php /* @noEscape */ echo $productString ?>
+                });
+            });
+
+            <?php endif; ?>
+            <?php elseif ($action == 'catalogsearch_result_index'
+        || $action == 'catalogsearch_advanced_result') : ?>
+            fbq('track', 'Search');
+            <?php elseif ($action == 'customer_account_create') : ?>
+            fbq('track', 'CompleteRegistration');
+            <?php elseif ($action == 'checkout_index_index'
+        || $action == 'onepagecheckout_index_index'
+        || $action == 'onestepcheckout_index_index'
+        || $action == 'opc_index_index') : ?>
+            fbq('track', 'InitiateCheckout');
+            <?php elseif ($action == 'checkout_onepage_success'
+        || $action == 'onepagecheckout_index_success') : ?>
+            <?php
+            $orderData = $block->getOrderData();
+            if ($orderData !== null) :?>
+            fbq('track', 'Purchase', {
+                <?php
+
+                $contentsData = $orderData['contents'];
+                $orderItems = '';
+                $i = 1;
+                $itemCount = count($contentsData);
+
+                foreach ($contentsData as $item) {
+                    $orderItems .= "{";
+
+                    foreach ($item as $param => $value) {
+
+                        switch ($param) {
+                            case 'quantity':
+                                $orderItems .= $param . ": " . $value . ",\n";
+                                break;
+                            case 'item_price':
+                                $orderItems .= $param . ": " . $value . "\n";
+                                break;
+                            default:
+                                $orderItems .= $param . ": '" . $value . "',\n";
+                        }
+                    }
+
+                    if ($i == $itemCount) {
+                        $orderItems .= "}\n";
+                    } else {
+                        $orderItems .= "},\n";
+                    }
+
+                    $i++;
+                }
+                ?>
+
+                contents: [
+                    <?php /* @noEscape */ echo $orderItems ?>
+                ],
+                content_type: 'product',
+                value: <?php echo $block->escapeHtml($orderData['value']) ?>,
+                currency: '<?php echo $block->escapeHtml($orderData['currency']) ?>'
+            });
+
+            <?php endif; ?>
+            <?php elseif ($action == 'wishlist_index_index') : ?>
+            fbq('track', 'AddToWishlist');
+            <?php
+            // cms_index_index or cms_page_view or catalog_category_view
+            // or any other page do not add anything.
+            // (PageView is already added at the top.)
+            else : ?>
+
+            <?php endif; ?>
+
+        });
+    });
+</script>
+<!-- End Facebook Pixel Code -->

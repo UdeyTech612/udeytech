@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2021. Udeytech Technologies All rights reserved.
+  ~ See COPYING.txt for license details.
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="udeytech_extensions" translate="label" sortOrder="1000000">
+            <label>Udeytech Extensions</label>
+        </tab>
+        <section id="udeytech_facebookpixel" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <label>Facebook Pixel</label>
+            <tab>udeytech_extensions</tab>
+            <resource>Udeytech_FacebookPixel::config_system</resource>
+            <group id="about" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>About</label>
+                <frontend_model>Udeytech\FacebookPixel\Block\Adminhtml\About</frontend_model>
+            </group>
+            <group id="general" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="1" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <comment>Enables or disables extension.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="pixel_id" translate="label comment" type="text" sortOrder="2" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Facebook Pixel ID</label>
+                    <comment>Your Facebook Pixel ID.</comment>
+                    <validate>required-entry validate-no-html-tags</validate>
+                    <backend_model>Udeytech\FacebookPixel\Model\Config\PixelId</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="mapping_product" translate="label comment tooltip" type="textarea" sortOrder="3"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Parameters to Attributes Mapping</label>
+                    <comment>If you want to add custom parameters to products. Please see a tooltip.</comment>
+                    <tooltip>
+                        <![CDATA[Example: gpc=gpc|color=color<br />As you can see the format is simple<br /><strong>param1=attribute1|param2=attribute2</strong><br /> Facebook Pixel parameter and Magento product attribute are connected by = sign and pairs are separated by | sign.]]></tooltip>
+                    <validate>validate-no-html-tags</validate>
+                    <backend_model>Udeytech\FacebookPixel\Model\Config\Mapping</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="mapping_order" translate="label comment tooltip" type="textarea" sortOrder="4"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Parameters to Attributes Mapping (Order Items)</label>
+                    <comment>If you want to add custom parameters to order items. Please see a tooltip.</comment>
+                    <tooltip>
+                        <![CDATA[Example: gpc=gpc|color=color<br />As you can see the format is simple<br /><strong>param1=attribute1|param2=attribute2</strong><br /> Facebook Pixel parameter and Magento product attribute are connected by = sign and pairs are separated by | sign.]]></tooltip>
+                    <validate>validate-no-html-tags</validate>
+                    <backend_model>Udeytech\FacebookPixel\Model\Config\Mapping</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
