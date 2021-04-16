@@ -6,6 +6,9 @@
     "license": [
         "OSL-3.0"
     ],
+     "require": {
+      "php": ">=5.5"
+      },
     "autoload": {
         "files": [
             "registration.php"
